@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/ai-support")
 public class AiSupportController {
 
-    private JavaTechieAIAgent agent;
+    private final JavaTechieAIAgent agent;
 
-    private OrderSupportAIAgent orderSupportAIAgent;
+    private final OrderSupportAIAgent orderSupportAIAgent;
 
     public AiSupportController(
             JavaTechieAIAgent agent,
