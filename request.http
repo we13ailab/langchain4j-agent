@@ -1,0 +1,79 @@
+### ============================================================
+### langchain4j-agent — API Test Requests
+###
+### Works with:
+###   - IntelliJ IDEA / WebStorm HTTP Client
+###   - VS Code "REST Client" extension
+###
+### App base URL: http://localhost:9292
+### (see server.port in src/main/resources/application.yaml)
+###
+### NOTE: Replace ORD-1001 / ORD-1002 / ORD-1003 with real
+### order_id values from your `orders` table.
+### ============================================================
+
+@baseUrl = http://localhost:9292
+@endpoint = {{baseUrl}}/api/ai-support
+@orderEndpoint = {{baseUrl}}/api/ai-support/order
+
+### ============================================================
+### 1. General AI Chat  (JavaTechieAIAgent — no tools attached)
+### ============================================================
+
+### 1.1 Simple greeting
+GET {{endpoint}}?message=Hello, who are you?
+
+### 1.2 General knowledge question
+GET {{endpoint}}?message=What is LangChain4j?
+
+### 1.3 Coding help
+GET {{endpoint}}?message=Give me a one-line summary of Spring Boot
+
+### ============================================================
+### 2. Order Support AI  (OrderSupportAIAgent — with tools:
+###    getOrderStatus, cancelOrder)
+### ============================================================
+
+### 2.1 Ask for order status (triggers getOrderStatus tool)
+GET {{orderEndpoint}}?message=What is the status of my order ORD-1001?
+
+### 2.2 Ask for delivery details (triggers getOrderStatus tool)
+GET {{orderEndpoint}}?message=When will order ORD-1001 be delivered and where is it right now?
+
+### 2.3 Cancel an order (triggers cancelOrder tool)
+GET {{orderEndpoint}}?message=Please cancel my order ORD-1002
+
+### 2.4 Cancel a SHIPPED order (expect error: cannot cancel shipped order)
+GET {{orderEndpoint}}?message=I want to cancel order ORD-1003
+
+### 2.5 Order not found (expect error: Order not found)
+GET {{orderEndpoint}}?message=What is the status of order ORD-9999?
+
+### 2.6 Non-order question (tools should NOT be invoked)
+GET {{orderEndpoint}}?message=What is your return policy?
+
+### ============================================================
+### 3. Negative / Edge Cases
+### ============================================================
+
+### 3.1 Missing required 'message' param (expect 400 Bad Request)
+GET {{endpoint}}
+
+### 3.2 Missing required 'message' param on order endpoint (expect 400)
+GET {{orderEndpoint}}
+
+### 3.3 Empty message value
+GET {{endpoint}}?message=
+
+### ============================================================
+### 4. Handy cURL equivalents (copy/paste into a terminal)
+### ============================================================
+
+# General chat:
+# curl "http://localhost:9292/api/ai-support?message=Hello"
+#
+# Order status:
+# curl "http://localhost:9292/api/ai-support/order?message=What%20is%20the%20status%20of%20my%20order%20ORD-1001%3F"
+#
+# Cancel order:
+# curl "http://localhost:9292/api/ai-support/order?message=Please%20cancel%20my%20order%20ORD-1002"

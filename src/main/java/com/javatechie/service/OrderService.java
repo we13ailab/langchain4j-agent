@@ -1,5 +1,7 @@
 package com.javatechie.service;
 
+import com.javatechie.exception.OrderCannotBeCancelledException;
+import com.javatechie.exception.OrderNotFoundException;
 import com.javatechie.model.OrderEntity;
 import com.javatechie.repository.OrderRepository;
 import org.springframework.stereotype.Service;
@@ -16,22 +18,14 @@ public class OrderService {
     public OrderEntity getOrderStatus(String orderId) {
 
         return orderRepository.findByOrderId(orderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Order not found: " + orderId
-                        )
-                );
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
     public OrderEntity cancelOrder(String orderId) {
         OrderEntity order = orderRepository.findByOrderId(orderId)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Order not found: " + orderId
-                        )
-                );
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
         if (order.getStatus().equalsIgnoreCase("Shipped")) {
-            throw new RuntimeException("Cannot cancel an order that has already been shipped.");
+            throw new OrderCannotBeCancelledException(orderId);
         }
         order.setStatus("CANCELLED");
         order.setExpectedDelivery(null);

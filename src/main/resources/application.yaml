@@ -5,8 +5,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/javatechie
-    username: root
-    password: Password
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Password}
 
   jpa:
     show-sql: true
@@ -24,8 +24,24 @@ server.port: 9292
 langchain4j:
   open-ai:
     chat-model:
-      api-key: """      model-name: gpt-4o-mini
+      # --- OpenCode Go plan (OpenAI-compatible endpoint) ---
+      # langchain4j appends /chat/completions to base-url automatically
+      base-url: https://opencode.ai/inference/go/openai/v1
+      api-key: ${OPENCODE_API_KEY}
+      # Chat-Completions-native Go models: glm-5.3-flash, glm-5.3, glm-5.2,
+      # kimi-k3.1-pro, kimi-k2.7-code, deepseek-v4.1-flash, ...
+      model-name: glm-5.3-flash
+      custom-headers:
+        # Go asks external clients to identify themselves instead of a generic SDK user agent
+        User-Agent: langchain4j-agent/1.0
+        # Stable session id per conversation, so Go can optimize routing and prompt caching
+        x-opencode-session: langchain4j-order-support
       log-requests: true
       log-responses: true
+
+      # --- Plain OpenAI fallback (uncomment to switch back) ---
+      # base-url: https://api.openai.com/v1
+      # api-key: ${OPENAI_API_KEY}
+      # model-name: gpt-4o-mini
 
 
